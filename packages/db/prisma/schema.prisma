@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Store {
+  id        String   @id @default(cuid())
+  name      String
+  branch    String
+  city      String
+  gstin     String   @default("")
+  address   String   @default("")
+  logoUrl   String   @default("")
+  timezone  String   @default("Asia/Kolkata")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products  Product[]
+  offers    Offer[]
+  sessions  Session[]
+  orders    Order[]
+  staff     Staff[]
+}
+
+model Product {
+  id        String   @id @default(cuid())
+  storeId   String
+  barcode   String
+  name      String
+  brand     String   @default("")
+  category  String
+  price     Float
+  mrp       Float
+  gstRate   Float    @default(0.05)
+  unit      String   @default("pcs")
+  weight    String   @default("")
+  imageUrl  String   @default("")
+  icon      String   @default("📦")
+  inStock   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  store     Store      @relation(fields: [storeId], references: [id])
+  cartItems CartItem[]
+  orderItems OrderItem[]
+
+  @@unique([storeId, barcode])
+  @@index([storeId])
+  @@index([barcode])
+  @@index([category])
+}
+
+model Offer {
+  id         String   @id @default(cuid())
+  storeId    String
+  type       String   // percent | flat | combo
+  value      Float
+  label      String   @default("")
+  targetSkus String   @default("[]") // JSON array of product IDs
+  startAt    DateTime
+  endAt      DateTime
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  store      Store    @relation(fields: [storeId], references: [id])
+
+  @@index([storeId])
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  storeId   String
+  phone     String
+  status    String   @default("active") // active | paid | expired
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  store     Store      @relation(fields: [storeId], references: [id])
+  cartItems CartItem[]
+  orders    Order[]
+
+  @@index([storeId])
+  @@index([phone])
+}
+
+model CartItem {
+  id          String   @id @default(cuid())
+  sessionId   String
+  productId   String
+  qty         Int      @default(1)
+  priceAtScan Float
+  addedAt     DateTime @default(now())
+
+  session     Session  @relation(fields: [sessionId], references: [id])
+  product     Product  @relation(fields: [productId], references: [id])
+
+  @@unique([sessionId, productId])
+  @@index([sessionId])
+}
+
+model Order {
+  id            String   @id @default(cuid())
+  sessionId     String
+  storeId       String
+  subtotal      Float
+  gstAmount     Float
+  total         Float
+  paymentMethod String   @default("")
+  paymentStatus String   @default("pending") // pending | paid | failed | cash
+  paymentRef    String   @default("")
+  receiptId     String   @unique
+  riskFlag      String   @default("green") // green | red
+  createdAt     DateTime @default(now())
+
+  session       Session  @relation(fields: [sessionId], references: [id])
+  store         Store    @relation(fields: [storeId], references: [id])
+  orderItems    OrderItem[]
+  verification  ExitVerification?
+
+  @@index([storeId])
+  @@index([receiptId])
+  @@index([sessionId])
+}
+
+model OrderItem {
+  id           String @id @default(cuid())
+  orderId      String
+  productId    String
+  nameSnapshot String
+  qty          Int
+  unitPrice    Float
+  gstRate      Float
+
+  order        Order   @relation(fields: [orderId], references: [id])
+  product      Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+}
+
+model ExitVerification {
+  id            String   @id @default(cuid())
+  orderId       String   @unique
+  guardId       String
+  billedCount   Int
+  physicalCount Int
+  mismatchCount Int      @default(0)
+  extraAmount   Float    @default(0)
+  status        String   @default("pending") // pending | cleared | mismatch_resolved
+  verifiedAt    DateTime @default(now())
+
+  order         Order @relation(fields: [orderId], references: [id])
+  guard         Staff @relation(fields: [guardId], references: [id])
+
+  @@index([orderId])
+}
+
+model Staff {
+  id        String   @id @default(cuid())
+  storeId   String
+  name      String
+  role      String   // guard | manager | admin
+  pinHash   String
+  email     String   @default("")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  store     Store              @relation(fields: [storeId], references: [id])
+  verifications ExitVerification[]
+
+  @@index([storeId])
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  phone     String   @unique
+  createdAt DateTime @default(now())
+}

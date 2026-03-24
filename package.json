@@ -1,0 +1,19 @@
+{
+  "name": "scango",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w apps/api",
+    "dev:customer": "npm run dev -w apps/customer-pwa",
+    "dev:admin": "npm run dev -w apps/admin-dashboard",
+    "build": "npm run build -w packages/db && npm run build -w packages/ui && npm run build -w apps/api && npm run build -w apps/customer-pwa && npm run build -w apps/admin-dashboard",
+    "db:generate": "npm run generate -w packages/db",
+    "db:push": "npm run push -w packages/db",
+    "db:seed": "npm run seed -w packages/db",
+    "db:studio": "npm run studio -w packages/db"
+  }
+}
