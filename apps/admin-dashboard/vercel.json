@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:match*",
+      "destination": "https://scan-go-yun2.onrender.com/api/:match*"
+    },
+    {
+      "source": "/socket.io/:match*",
+      "destination": "https://scan-go-yun2.onrender.com/socket.io/:match*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
