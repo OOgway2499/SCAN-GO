@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useUiStore } from './stores/uiStore';
 import Toasts from './components/Toasts';
-import SplashScreen from './components/SplashScreen';
+import SplashScreen3D from './components/SplashScreen3D';
 import EntryScreen from './screens/EntryScreen';
 import ShoppingScreen from './screens/ShoppingScreen';
 import PaymentScreen from './screens/PaymentScreen';
@@ -17,7 +17,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-bg font-display text-t1 relative overflow-x-hidden">
-      {!splashDone && <SplashScreen onComplete={() => setSplashDone(true)} />}
+      {!splashDone && <SplashScreen3D onComplete={() => setSplashDone(true)} />}
       <Toasts list={toasts} />
       
       <Routes>
