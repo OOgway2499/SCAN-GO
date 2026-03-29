@@ -5,6 +5,7 @@ import { useCartStore } from '../stores/cartStore';
 import { useUiStore } from '../stores/uiStore';
 import Tag from '../components/Tag';
 import { formatINR, vibrate } from '@scango/ui';
+import { SFX } from '../hooks/useSounds';
 
 export default function PaymentScreen() {
   const navigate = useNavigate();
@@ -47,12 +48,14 @@ export default function PaymentScreen() {
       const dataV = await resV.json();
       if (!resV.ok) throw new Error(dataV.error);
 
-      // Payment successful
+      // Payment successful — play ka-ching!
+      SFX.payment();
       cart.clearCart();
       setIsProcessing(false);
       navigate(`/receipt/${dataV.receiptId}`, { replace: true });
       
     } catch (err: any) {
+      SFX.error();
       setIsProcessing(false);
       pushToast(err.message, 'err');
     }

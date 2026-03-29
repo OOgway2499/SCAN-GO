@@ -7,6 +7,7 @@ import Scanner from '../components/Scanner';
 import Chip from '../components/Chip';
 import Tag from '../components/Tag';
 import { formatINR, categories, Category, vibrate } from '@scango/ui';
+import { SFX } from '../hooks/useSounds';
 
 export default function ShoppingScreen() {
   const navigate = useNavigate();
@@ -34,7 +35,7 @@ export default function ShoppingScreen() {
   }, [isActive, sessionId, navigate]);
 
   const handleScan = (p: CartProduct) => {
-    vibrate();
+    SFX.scan();
     
     // Normalize: API products use 'id', cart uses 'productId'
     const normalized = { ...p, productId: p.productId || p.id };
